@@ -133,6 +133,36 @@ class TestSignupForActivity:
         # Assert
         assert response.status_code == 400
 
+    def test_signup_full_activity_returns_400(self, client):
+        # Arrange
+        activity = "Chess Club"
+
+        # Fetch current activity data to determine capacity
+        activities = client.get("/activities").json()
+        details = activities[activity]
+        max_participants = details["max_participants"]
+        current_count = len(details["participants"])
+        remaining_slots = max_participants - current_count
+
+        # Fill the activity to its max_participants limit
+        for i in range(remaining_slots):
+            email = f"capacity_filler_{i}@mergington.edu"
+            fill_response = client.post(
+                f"/activities/{activity}/signup",
+                params={"email": email},
+            )
+            assert fill_response.status_code == 200
+
+        # Act – attempt one more signup beyond capacity
+        extra_email = "extra_student@mergington.edu"
+        response = client.post(
+            f"/activities/{activity}/signup",
+            params={"email": extra_email},
+        )
+
+        # Assert
+        assert response.status_code == 400
+
 
 # ---------------------------------------------------------------------------
 # DELETE /activities/{activity_name}/participants
