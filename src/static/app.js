@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to fetch activities from API
   async function fetchActivities() {
     try {
-      const response = await fetch(`/activities?t=${Date.now()}`, {
+      const response = await fetch("/activities", {
         cache: "no-store",
       });
 
@@ -152,6 +152,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const email = target.dataset.email;
 
     if (!activity || !email) {
+      return;
+    }
+
+    const isConfirmed = window.confirm(
+      `Are you sure you want to remove ${email} from "${activity}"?`
+    );
+    if (!isConfirmed) {
       return;
     }
 
